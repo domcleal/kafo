@@ -7,6 +7,9 @@ CONFIRM = "4"  # "Save and run"
 
 module Kafo
   describe Wizard do
+    before { @old_terminal = $terminal }
+    after { $terminal = @old_terminal }
+
     let(:input) { StringIO.new }
     let(:output) { StringIO.new }
 

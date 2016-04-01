@@ -35,8 +35,8 @@ module Kafo
       let(:arr) { Params::Array.new(builder, 'arr').tap { |p| p.value = ['root', 'toor'] } }
       let(:int) { Params::Integer.new(builder, 'int').tap { |p| p.value = 3 } }
       let(:bool) { Params::Boolean.new(builder, 'bool').tap { |p| p.value = false } }
-      let(:pass) { Params::Password.new(builder, 'pass').tap { |p| p.value = 'secret' } }
-      let(:context) { [str, arr, int, bool, pass] }
+      let(:password) { Params::Password.new(builder, 'pass').tap { |p| p.value = 'secret' } }
+      let(:context) { [str, arr, int, bool, password] }
 
       describe "substitutes all variables for param values" do
         let(:condition) { Condition.new('$str == "tester" && $arr.include?("toor") && $int > 2 && !$bool && $pass != "secret"', context) }
