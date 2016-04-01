@@ -4,6 +4,10 @@ require 'tmpdir'
 
 module Kafo
   describe ScenarioManager do
+    before do
+      ColorScheme.new(:colors => false).setup
+    end
+
     let(:manager) { ScenarioManager.new('/path/to/scenarios.d') }
     let(:manager_with_file) { ScenarioManager.new('/path/to/scenarios.d/foreman.yaml') }
 
