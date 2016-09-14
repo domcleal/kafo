@@ -126,6 +126,14 @@ module Kafo
         specify { param.valid?.must_equal true }
       end
 
+      describe "with validate_legacy" do
+        before { param.value = '2' }
+        let(:validations) do
+          [create_validation('validate_legacy', ['Integer', 'validate_integer', '$test'])]
+        end
+        specify { param.valid?.must_equal true }
+      end
+
       describe "with Puppet parser" do
         before { param.value = '5' }
         let(:validations) do
@@ -174,7 +182,7 @@ module Kafo
       def create_validation(function, function_args)
         validation = MiniTest::Mock.new
         validation.expect(:clone, validation)
-        3.times { validation.expect(:name, function) }
+        4.times { validation.expect(:name, function) }
         2.times { validation.expect(:arguments, function_args) }
         validation
       end

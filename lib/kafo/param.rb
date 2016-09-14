@@ -82,7 +82,7 @@ module Kafo
       # also we want to clone validations so we don't interfere
       validations = self.module.validations(self).map do |v|
         # These functions do not take more variables as arguments, instead we need to pass all arguments
-        if v.name == 'validate_re' || v.name == 'validate_integer'
+        if v.name == 'validate_re' || v.name == 'validate_integer' || v.name == 'validate_legacy'
           args = v.arguments.to_a
         else
           args = v.arguments.select { |a| a.to_s == "$#{self.name}" }

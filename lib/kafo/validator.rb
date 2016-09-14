@@ -1,4 +1,6 @@
 # encoding: UTF-8
+require 'kafo/data_type'
+
 module Kafo
   class Validator
     attr_reader :errors
@@ -65,6 +67,28 @@ module Kafo
     rescue TypeError, ArgumentError
       error "#{value.inspect} is not a valid integer"
       return false
+    end
+
+    def validate_legacy(args)
+      target_type, validation_str, value = *args
+      data_type = DataType.new_from_string(target_type)
+
+      dt_errors = []
+      dt_valid = data_type.valid?(data_type.typecast(value), dt_errors)
+      func_valid = respond_to?(validation_str) ? send(validation_str, [value]) : true
+
+      if dt_valid && func_valid
+        return true
+      elsif dt_valid && !func_valid
+        @logger.debug("Value #{value.inspect} was accepted as it matches data types, but failed when validated against #{validation_str}")
+        return true
+      elsif !dt_valid && func_valid
+        @logger.warn("Value #{value.inspect} was accepted, but will not be valid in future versions - ensure it matches #{data_type}")
+        return true
+      else
+        dt_errors.each { |e| error(e) }
+        return false
+      end
     end
 
     # Non-standard validation is from theforeman/foreman_proxy module

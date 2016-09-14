@@ -56,6 +56,13 @@ module Kafo
       specify { validator.validate_integer(['3', '5', '2']).must_equal true }
     end
 
+    describe "#validate_legacy" do
+      specify { validator.validate_legacy(['Integer', 'validate_integer', 1]).must_equal true }
+      specify { validator.validate_legacy(['Variant[Integer, String]', 'validate_integer', 'foo']).must_equal true }
+      specify { validator.validate_legacy(['Integer', 'validate_integer', '1']).must_equal true }
+      specify { validator.validate_legacy(['Integer', 'validate_integer', 'foo']).must_equal false }
+    end
+
     describe "#validate_listen_on" do
       specify { validator.validate_listen_on(['http']).must_equal true }
       specify { validator.validate_listen_on(['https']).must_equal true }
