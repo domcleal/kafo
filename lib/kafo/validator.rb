@@ -70,14 +70,15 @@ module Kafo
     end
 
     def validate_legacy(args)
-      target_type, validation_str, value = *args
+      target_type, validation_str, value, func_args = *args
       data_type = DataType.new_from_string(target_type)
 
       dt_errors = []
       dt_valid = data_type.valid?(data_type.typecast(value), dt_errors)
 
       other_validator = Validator.new
-      func_valid = other_validator.respond_to?(validation_str) ? other_validator.send(validation_str, [value]) : true
+      func_args = func_args.nil? ? [value] : [value].concat(func_args)
+      func_valid = other_validator.respond_to?(validation_str) ? other_validator.send(validation_str, func_args) : true
 
       if dt_valid && func_valid
         return true

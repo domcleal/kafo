@@ -23,6 +23,11 @@ module Kafo
         validator.validate_legacy(['Variant[Integer, String]', 'validate_integer', 'foo']).must_equal true
       end
       specify do
+        logger.expect(:debug, true, ['Value 5 was accepted as it matches data types, but failed when validated against validate_integer'])
+        logger.expect(:debug, true, ['Legacy validation error: 5 must be less than 3'])
+        validator.validate_legacy(['Integer', 'validate_integer', 5, [3]]).must_equal true
+      end
+      specify do
         logger.expect(:warn, true, ['Value ["foo"] was accepted, but will not be valid in future versions - ensure it matches array of integer'])
         logger.expect(:warn, true, ['Validation error: Elements of the array are invalid: "foo" is not a valid integer'])
         validator.validate_legacy(['Array[Integer]', 'validate_array', ['foo']]).must_equal true
