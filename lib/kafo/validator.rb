@@ -75,15 +75,19 @@ module Kafo
 
       dt_errors = []
       dt_valid = data_type.valid?(data_type.typecast(value), dt_errors)
-      func_valid = respond_to?(validation_str) ? send(validation_str, [value]) : true
+
+      other_validator = Validator.new
+      func_valid = other_validator.respond_to?(validation_str) ? other_validator.send(validation_str, [value]) : true
 
       if dt_valid && func_valid
         return true
       elsif dt_valid && !func_valid
         @logger.debug("Value #{value.inspect} was accepted as it matches data types, but failed when validated against #{validation_str}")
+        other_validator.errors.each { |e| @logger.debug "Legacy validation error: #{e}" }
         return true
       elsif !dt_valid && func_valid
         @logger.warn("Value #{value.inspect} was accepted, but will not be valid in future versions - ensure it matches #{data_type}")
+        dt_errors.each { |e| @logger.warn("Validation error: #{e}") }
         return true
       else
         dt_errors.each { |e| error(e) }
