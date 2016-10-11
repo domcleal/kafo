@@ -4,7 +4,12 @@ DummyParam = Struct.new(:name, :value)
 
 module Kafo
   describe Validator do
-    let(:validator) { Validator.new }
+    let(:logger) do
+      logger = MiniTest::Mock.new
+      logger.expect(:error, true) { true }
+      logger
+    end
+    let(:validator) { Validator.new(logger) }
 
     describe "#errors" do
       specify { validator.tap { |v| v.validate_string([1]) }.errors.must_equal ["1 is not a valid string"] }
@@ -58,9 +63,20 @@ module Kafo
 
     describe "#validate_legacy" do
       specify { validator.validate_legacy(['Integer', 'validate_integer', 1]).must_equal true }
-      specify { validator.validate_legacy(['Variant[Integer, String]', 'validate_integer', 'foo']).must_equal true }
-      specify { validator.validate_legacy(['Integer', 'validate_integer', '1']).must_equal true }
-      specify { validator.validate_legacy(['Integer', 'validate_integer', 'foo']).must_equal false }
+      specify do
+        logger.expect(:debug, true, ['Value "foo" was accepted as it matches data types, but failed when validated against validate_integer'])
+        logger.expect(:debug, true, ['Legacy validation error: "foo" is not a valid integer'])
+        validator.validate_legacy(['Variant[Integer, String]', 'validate_integer', 'foo']).must_equal true
+      end
+      specify do
+        logger.expect(:warn, true, ['Value "foo" was accepted, but will not be valid in future versions - ensure it matches Integer'])
+        logger.expect(:warn, true, ['Validation error: "foo" is not a valid integer'])
+        validator.validate_legacy(['Integer', 'validate_integer', '1']).must_equal true
+      end
+      specify do
+        logger.expect(:warn, true, ['Validation error: "foo" is not a valid integer'])
+        validator.validate_legacy(['Integer', 'validate_integer', 'foo']).must_equal false
+      end
     end
 
     describe "#validate_listen_on" do
@@ -97,7 +113,10 @@ module Kafo
     end
 
     describe "#method_missing responds to unknown validation functions" do
-      specify { validator.validate_unknown_function(['foo']).must_equal true }
+      specify do
+        logger.expect(:debug, true, ["Skipping validation with validate_unknown_function as it's not implemented in Kafo"])
+        validator.validate_unknown_function(['foo']).must_equal true
+      end
       specify { Proc.new { validator.unknown_method(['foo']) }.must_raise NoMethodError }
     end
   end

@@ -5,9 +5,9 @@ module Kafo
   class Validator
     attr_reader :errors
 
-    def initialize
+    def initialize(logger = KafoConfigure.logger)
       @errors = []
-      @logger = KafoConfigure.logger
+      @logger = logger
     end
 
     def validate_absolute_path(args)
